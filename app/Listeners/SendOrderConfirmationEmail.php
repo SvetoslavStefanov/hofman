@@ -25,6 +25,7 @@ class SendOrderConfirmationEmail {
    * @return void
    */
   public function handle($event) {
-    Mail::to($event->order->email)->send(new OrderConfirmation($event->order));
+    //sending the emails via a queue for better performance, although on the local environment the QUEUE_CONNECTION constant is set to `sync`
+    Mail::to($event->order->email)->queue(new OrderConfirmation($event->order));
   }
 }
