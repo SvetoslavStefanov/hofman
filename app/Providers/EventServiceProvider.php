@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Events\OrderPlaced;
+use App\Listeners\CreatePaymentListener;
 use App\Listeners\SendOrderConfirmationEmail;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -21,6 +22,7 @@ class EventServiceProvider extends ServiceProvider {
     ],
     OrderPlaced::class => [
       SendOrderConfirmationEmail::class,
+      CreatePaymentListener::class,
     ],
   ];
 

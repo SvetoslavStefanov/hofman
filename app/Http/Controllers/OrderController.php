@@ -6,10 +6,13 @@ use App\Events\OrderPlaced;
 use App\Mail\OrderConfirmation;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Payment;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
+use Mollie\Laravel\Facades\Mollie;
+use Illuminate\Support\Facades\URL;
 
 class OrderController extends Controller {
   /**
@@ -58,7 +61,7 @@ class OrderController extends Controller {
 
     event(new OrderPlaced($order));
 
-    return response()->json($order->load('items.product'), 201);
+    return response()->json($order->load('items.product')->load('payment'), 201);
   }
 
   /**

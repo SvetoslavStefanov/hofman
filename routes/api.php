@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PaymentController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\OrderController;
@@ -24,3 +25,7 @@ Route::delete('products/{product}', [ProductController::class, 'destroy']);
 
 Route::post('orders', [OrderController::class, 'store']);
 Route::get('orders', [OrderController::class, 'index']);
+Route::post('orders/{order}/payment', [PaymentController::class, 'confirmPayment'])->name('orders.confirmPayment');
+Route::get('orders/{order}/payment', function ($order) {
+    return "Payment success url";
+})->name('order.payment.success');
