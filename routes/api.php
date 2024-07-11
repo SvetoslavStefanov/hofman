@@ -27,5 +27,5 @@ Route::post('orders', [OrderController::class, 'store']);
 Route::get('orders', [OrderController::class, 'index']);
 Route::post('orders/{order}/payment', [PaymentController::class, 'confirmPayment'])->name('orders.confirmPayment');
 Route::get('orders/{order}/payment', function ($order) {
-    return "Payment success url";
+    return "Payment for order $order->ref_id has been confirmed.";
 })->name('order.payment.success');
