@@ -63,6 +63,7 @@ class Payment extends Model {
   }
 
   private static function generatePaymentLink(Payment $payment): void {
+    //A workaround to `route('orders.confirmPayment', $payment->order)` because the generated url is 127.0.0.1, which is not accepted by Mollie
     $url = config('app.url') . '/api/orders/' . $payment->order->id . '/payment';
 
     $paymentMollie = Mollie::api()->payments->create([
