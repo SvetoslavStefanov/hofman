@@ -50,6 +50,20 @@ class OrderController extends Controller {
       'total_price' => $totalPrice,
     ]);
 
+    $orderItems = [];
+    foreach ($validated['order_items'] as $item) {
+      $orderItems[] = [
+        'order_id' => $order->id,
+        'product_id' => $item['product_id'],
+        'quantity' => $item['quantity'],
+        'price' => $products[$item['product_id']],
+        'created_at' => now(),
+        'updated_at' => now(),
+      ];
+    }
+
+    OrderItem::insert($orderItems);
+
     foreach ($validated['order_items'] as $item) {
       OrderItem::create([
         'order_id' => $order->id,
