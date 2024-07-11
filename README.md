@@ -7,7 +7,9 @@
 2. ``` cd hofman```
 3. ``` composer install ```
 4. ``` php artisan migrate ```
-5. ``` php artisan serve ```
+5. Copy .env.example to .env
+6. Populate your `MOLLIE_KEY` & `HUBSPOT_API_KEY` to your `.env` file
+7. ``` php artisan serve ```
 
 # How to confirm payments:
 1. send a post request to `http://127.0.0.1:8000/api/orders`
