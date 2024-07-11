@@ -2,10 +2,13 @@
 
 namespace App\Listeners;
 
-use App\Mail\PaymentConfirmation;
 use App\Models\Payment;
-use Illuminate\Support\Facades\Mail;
 
+/**
+ * This event is called once an Order has been placed.
+ * The purpose of this listener is to create a new Payment record in the database.
+ * & to generate a payment_link afterward.
+ */
 class CreatePaymentListener {
   /**
    * Create the event listener.
@@ -23,7 +26,6 @@ class CreatePaymentListener {
    * @return void
    */
   public function handle($event) {
-    Mail::to($event->order->email)->queue(new PaymentConfirmation($event->order));
     Payment::create([
       'order_id' => $event->order->id,
       'paid_at' => null

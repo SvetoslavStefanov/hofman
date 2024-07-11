@@ -15,7 +15,7 @@ class PaymentController extends Controller {
     $paymentId = $request->input('id');
     $payment = Mollie::api()->payments->get($paymentId);
 
-    if ($payment->isPaid()) {
+    if ($payment->isPaid() && !$order->payment->isPaid()) {
       $order->payment->paid_at = now();
       $order->payment->save();
 

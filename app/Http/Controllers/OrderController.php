@@ -3,16 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Events\OrderPlaced;
-use App\Mail\OrderConfirmation;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Payment;
 use App\Models\Product;
+use App\Services\HubSpotService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
-use Mollie\Laravel\Facades\Mollie;
-use Illuminate\Support\Facades\URL;
 
 class OrderController extends Controller {
   /**
@@ -63,15 +60,6 @@ class OrderController extends Controller {
     }
 
     OrderItem::insert($orderItems);
-
-    foreach ($validated['order_items'] as $item) {
-      OrderItem::create([
-        'order_id' => $order->id,
-        'product_id' => $item['product_id'],
-        'quantity' => $item['quantity'],
-        'price' => $products[$item['product_id']],
-      ]);
-    }
 
     event(new OrderPlaced($order));
 

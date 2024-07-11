@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\HubSpotService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Mollie\Laravel\Facades\Mollie;
@@ -19,25 +20,11 @@ class Payment extends Model {
     parent::boot();
 
     static::created(function ($payment) {
-      $url = config('app.url') . '/api/orders/' . $payment->order->id . '/payment';
+      self::generatePaymentLink($payment);
+    });
 
-      $paymentMollie = Mollie::api()->payments->create([
-        "amount" => [
-          "currency" => "EUR",
-          'value' => number_format($payment->order->total_price, 2, '.', ''),
-        ],
-        "description" => "Order #{$payment->order->ref_id}",
-        "redirectUrl" => $url,
-        "webhookUrl" => $url,
-        "metadata" => [
-          "order_id" => $payment->order->id,
-          "order_ref_id" => $payment->order->ref_id,
-          "payment_id" => $payment->id,
-        ],
-      ]);
-
-      $payment->payment_link = $paymentMollie->getCheckoutUrl();
-      $payment->save();
+    static::updated(function ($payment) {
+      self::generateHubspotContactAndDeal($payment);
     });
   }
 
@@ -47,5 +34,53 @@ class Payment extends Model {
 
   public function isPaid(): bool {
     return !is_null($this->paid_at);
+  }
+
+  /**
+   * After the payment has been confirmed, generate a HubSpot contact and deal.
+   *
+   * @param Payment $payment
+   */
+  private static function generateHubspotContactAndDeal(Payment $payment) {
+    if ($payment->wasChanged('paid_at') && $payment->paid_at && $payment->paid_at !== $payment->getOriginal('paid_at') && $payment->isPaid()) {
+      $hubSpotService = app()->make(HubSpotService::class);
+
+      $contactData = [
+        'email' => $payment->order->email,
+      ];
+
+      $contactId = $hubSpotService->createContact($contactData);
+
+      $dealData = [
+        'dealname' => 'Order ' . $payment->order->ref_id,
+        'amount' => $payment->order->total_amount,
+        'closedate' => now()->toDateString(),
+        'dealstage' => 'closedwon',
+        'pipeline' => 'default'
+      ];
+      $dealId = $hubSpotService->createDeal($dealData);
+    }
+  }
+
+  private static function generatePaymentLink(Payment $payment): void {
+    $url = config('app.url') . '/api/orders/' . $payment->order->id . '/payment';
+
+    $paymentMollie = Mollie::api()->payments->create([
+      "amount" => [
+        "currency" => "EUR",
+        'value' => number_format($payment->order->total_price, 2, '.', ''),
+      ],
+      "description" => "Order #{$payment->order->ref_id}",
+      "redirectUrl" => $url,
+      "webhookUrl" => $url,
+      "metadata" => [
+        "order_id" => $payment->order->id,
+        "order_ref_id" => $payment->order->ref_id,
+        "payment_id" => $payment->id,
+      ],
+    ]);
+
+    $payment->payment_link = $paymentMollie->getCheckoutUrl();
+    $payment->save();
   }
 }

@@ -51,3 +51,4 @@ In this case only the `id` field matters. You could get the proper ID from Molli
 # Known issues
 1. I wanted to send emails via a Queue in order not to slow down the request, but running things on a local environment would make it more difficult. Because of that, I made that I left the `QUEUE_CONNECTION` constant to `sync`
 2. The `APP_URL` has to be a public url, like `APP_URL=http://213.91.182.221:8000`, otherwise Mollie couldn't use it as a webhook url
+3. Hubspot Contact is not associated to the newly created Deal. Also a Company is not being created.
